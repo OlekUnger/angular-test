@@ -12,6 +12,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  margin-bottom: 50px;
 }
 
 .card {
@@ -26,7 +27,6 @@
   }
 
   &-title {
-    //margin: 0;
     text-align: center;
   }
 }

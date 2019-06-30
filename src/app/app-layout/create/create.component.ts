@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnChanges, OnInit} from '@angular/core';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
 import {Transaction, TransactionService} from '../shared/transaction.service';
 
@@ -12,7 +12,7 @@ export class CreateComponent implements OnInit {
     form: FormGroup;
     months: number[] = [];
     years: number[] = [];
-    namePattern: RegExp = /^\S+ \S+$/;
+    namePattern: RegExp = /^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,}$/;
     cardNumberPattern: RegExp = /^[0-9]{4}(?!.)/;
     amountPattern: RegExp = /^[0-9]+$/;
     transaction: Transaction;
@@ -35,7 +35,6 @@ export class CreateComponent implements OnInit {
                 .map(item => item = new FormControl(null, [Validators.required, this.validateByPattern(this.cardNumberPattern)]))),
         });
     }
-
 
     onSubmit() {
         const formData = this.form.value;
@@ -65,7 +64,7 @@ export class CreateComponent implements OnInit {
             return {error: true};
         }
         return null;
-    }
+    };
 
     private showMessage(message: string) {
         this.message = message;

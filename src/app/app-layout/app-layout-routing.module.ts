@@ -8,7 +8,7 @@ import {AppLayoutComponent} from './app-layout.component';
 const routes: Routes = [
     {
         path: '', component: AppLayoutComponent, children: [
-            {path: '', redirectTo: '/history', pathMatch: 'full'},
+            {path: '', redirectTo: '/create', pathMatch: 'full'},
             {path: 'create', component: CreateComponent},
             {path: 'history', component: HistoryComponent}
         ]
