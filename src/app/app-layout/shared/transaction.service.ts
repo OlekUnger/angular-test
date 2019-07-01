@@ -64,10 +64,8 @@ export class TransactionService {
     repeat(id: number): any {
         return this.getAll()
             .then(data => {
-                let transaction: Transaction;
                 if (data.length) {
-                     transaction = data.find(item => item.id === id);
-                     return this.add(transaction, data);
+                    return data.find(item => item.id === id);
                 }
             });
     }

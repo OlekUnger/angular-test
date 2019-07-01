@@ -1,6 +1,7 @@
-import {Component, OnChanges, OnInit} from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
 import {Transaction, TransactionService} from '../shared/transaction.service';
+import {ActivatedRoute, } from '@angular/router';
 
 @Component({
     selector: 'app-create',
@@ -17,31 +18,59 @@ export class CreateComponent implements OnInit {
     amountPattern: RegExp = /^[0-9]+$/;
     transaction: Transaction;
     message = '';
+    forRepeat;
 
-    constructor(private transactionService: TransactionService) {
+
+    constructor(private transactionService: TransactionService, private route: ActivatedRoute) {
+        this.route.queryParams.subscribe(data => {
+            if (data) {
+                this.transactionService.repeat(Number(data.id))
+                    .then(dat => {
+                        this.forRepeat = dat;
+                    });
+            } else {
+                this.forRepeat = null;
+            }
+        });
+
     }
 
     ngOnInit() {
+
         this.months = Array(12).fill(0).map((e, i) => i + 1);
         this.years = Array(10).fill(0).map((e, i) => 18 + i + 1);
+
         this.form = new FormGroup({
-            amount: new FormControl(null, [Validators.required, this.validateByPattern(this.amountPattern)]),
-            fio: new FormControl(null, [Validators.required, this.validateByPattern(this.namePattern)]),
-            activeMonth: new FormControl(null, Validators.required),
-            activeYear: new FormControl(null, Validators.required),
+            amount: new FormControl(this.getField('amount'), [Validators.required, this.validateByPattern(this.amountPattern)]),
+            fio: new FormControl(this.getField('fio'), [Validators.required, this.validateByPattern(this.namePattern)]),
+            activeMonth: new FormControl(this.getField('activeMonth'), Validators.required),
+            activeYear: new FormControl(this.getField('activeYear'), Validators.required),
             customerCardNumber: new FormArray(Array(4).fill(0)
-                .map(item => item = new FormControl(null, [Validators.required, this.validateByPattern(this.cardNumberPattern)]))),
+                .map((item, ind) => item = new FormControl(this.getField('customerCard', ind), [Validators.required, this.validateByPattern(this.cardNumberPattern)]))),
             consumerCardNumber: new FormArray(Array(4).fill(0)
-                .map(item => item = new FormControl(null, [Validators.required, this.validateByPattern(this.cardNumberPattern)]))),
+                .map((item, ind) => item = new FormControl(this.getField('consumerCard', ind), [Validators.required, this.validateByPattern(this.cardNumberPattern)]))),
         });
     }
+
+    getField(field, ind = null) {
+        if (this.forRepeat) {
+            console.log('transact', this.forRepeat);
+
+            if (field === 'consumerCard' || field === 'customerCard') {
+                return this.forRepeat[field].split(' ')[ind];
+            }
+            return this.forRepeat[field];
+        }
+        return null;
+    }
+
 
     onSubmit() {
         const formData = this.form.value;
         const {amount, fio, activeMonth, activeYear} = formData;
         this.transaction = {
-            consumerCard: formData.customerCardNumber.join(' '),
-            customerCard: formData.consumerCardNumber.join(' '),
+            customerCard: formData.customerCardNumber.join(' '),
+            consumerCard: formData.consumerCardNumber.join(' '),
             amount: amount,
             date: new Date(),
             fio: fio.trim().toLocaleLowerCase(),

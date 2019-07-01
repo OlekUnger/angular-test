@@ -1,5 +1,6 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Transaction, TransactionService} from '../shared/transaction.service';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-history',
@@ -8,8 +9,11 @@ import {Transaction, TransactionService} from '../shared/transaction.service';
 })
 export class HistoryComponent implements OnInit {
     transactions: Transaction[] = [];
+    @Output() repeat = new EventEmitter<Transaction>();
 
-    constructor(private transactionService: TransactionService) {
+    constructor(private transactionService: TransactionService,
+                private router: Router) {
+
     }
 
     ngOnInit() {
@@ -19,7 +23,19 @@ export class HistoryComponent implements OnInit {
 
     onRepeat(id: number) {
         this.transactionService.repeat(id)
-            .then(data => this.transactions = data);
+            .then(data => {
+                this.transactions = data;
+                this.router.navigate(['/create'],
+                    {
+                        queryParams: {
+                            id: data.id
+
+                        }
+                    });
+            });
+
+
+
     }
 
     onRemove(id: number) {
